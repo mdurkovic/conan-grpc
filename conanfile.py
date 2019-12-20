@@ -5,7 +5,7 @@ import os
 
 class grpcConan(ConanFile):
     name = "grpc"
-    version = "1.25.0"
+    version = "1.26.0"
     description = "Google's RPC library and framework."
     topics = ("conan", "grpc", "rpc")
     url = "https://github.com/inexorgame/conan-grpc"
@@ -101,15 +101,13 @@ class grpcConan(ConanFile):
         cmake.definitions['gRPC_SSL_PROVIDER'] = "package"
         cmake.definitions['gRPC_PROTOBUF_PROVIDER'] = "package"
 
-        # Workaround for https://github.com/grpc/grpc/issues/11068
-        cmake.definitions['gRPC_GFLAGS_PROVIDER'] = "none"
-        cmake.definitions['gRPC_BENCHMARK_PROVIDER'] = "none"
-
         # Compilation on minGW GCC requires to set _WIN32_WINNTT to at least 0x600
         # https://github.com/grpc/grpc/blob/109c570727c3089fef655edcdd0dd02cc5958010/include/grpc/impl/codegen/port_platform.h#L44
         if self.settings.os == "Windows" and self.settings.compiler == "gcc":
             cmake.definitions["CMAKE_CXX_FLAGS"] = "-D_WIN32_WINNT=0x600"
             cmake.definitions["CMAKE_C_FLAGS"] = "-D_WIN32_WINNT=0x600"
+
+        cmake.definitions["Protobuf_USE_STATIC_LIBS"] = "ON"
 
         cmake.configure(build_folder=self._build_subfolder)
         return cmake
